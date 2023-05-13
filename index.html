@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chatbot</title>
+</head>
+<body>
+  <h1>Chatbot</h1>
+  <div id="chat-container">
+    <div id="chat-log">
+      <p>AI: Hello! How can I assist you today?</p>
+    </div>
+    <input type="text" id="user-input" placeholder="Enter your message" autofocus />
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const chatLog = document.getElementById('chat-log');
+      const userInput = document.getElementById('user-input');
+
+      let aiModel = {};
+
+      // Function to train the AI model
+      function trainAI(input, response) {
+        if (!aiModel[input]) {
+          aiModel[input] = [];
+        }
+        aiModel[input].push(response);
+      }
+
+      // Function to generate a response from the AI model
+      function generateResponse(input) {
+        const responses = aiModel[input];
+        if (!responses) {
+          return 'AI: Sorry, I don\'t understand.';
+        }
+        const randomIndex = Math.floor(Math.random() * responses.length);
+        return `AI: ${responses[randomIndex]}`;
+      }
+
+      // Function to add a message to the chat log
+      function addToChatLog(message) {
+        const chatMessage = document.createElement('p');
+        chatMessage.textContent = message;
+        chatLog.appendChild(chatMessage);
+        chatLog.scrollTop = chatLog.scrollHeight;
+      }
+
+      // Main interaction loop
+      addToChatLog('AI: Hello! How can I assist you today?');
+
+      userInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          const userMessage = userInput.value.trim();
+          userInput.value = '';
+
+          addToChatLog(`You: ${userMessage}`);
+
+          if (userMessage.toLowerCase() === 'exit') {
+            addToChatLog('AI: Goodbye!');
+            return;
+          }
+
+          const response = generateResponse(userMessage);
+          addToChatLog(response);
+
+          addToChatLog('AI: Please provide an appropriate response for this input:');
+          userInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+              const trainedResponse = userInput.value.trim();
+              userInput.value = '';
+
+              trainAI(userMessage, trainedResponse);
+
+              addToChatLog('AI: Thank you for training me!');
+              userInput.removeEventListener('keydown', () => {});
+            }
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
